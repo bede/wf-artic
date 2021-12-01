@@ -110,6 +110,21 @@ process genotypeSummary {
 }
 
 
+process depth {
+    // Samtools depth output
+    label "artic"
+    publishDir "${params.out_dir}", mode: 'copy', pattern: "*"
+    cpus 1
+    input:
+        tuple val(sample_id), file(bam), file(bam_index)
+    output:
+        file "${sample_id}.depth.tsv"
+    """
+    samtools depth -aa -m 10000 ${bam} > ${sample_id}.depth.tsv
+    """
+}
+
+
 process combineGenotypeSummaries {
     label "artic"
     cpus 1
@@ -383,6 +398,7 @@ workflow pipeline {
         } else {
             read_summaries = preArticQC(samples)
             artic = runArtic(samples, scheme_directory)
+            depth(artic.primertrimmed_bam)
             // collate consensus and variants
             artic.consensus.view()
             all_consensus = allConsensus(artic.consensus.collect())
