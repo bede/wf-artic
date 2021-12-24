@@ -120,7 +120,7 @@ process depth {
     output:
         file "${sample_id}.depth.tsv"
     """
-    samtools depth -aa -m 10000 ${bam} > ${sample_id}.depth.tsv
+    samtools depth -aa -m 10000 -J ${bam} > ${sample_id}.depth.tsv
     """
 }
 
